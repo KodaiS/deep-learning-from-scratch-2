@@ -1,5 +1,7 @@
-ゼロから作る Deep Learning ❷
+学習用 ゼロから作る Deep Learning ❷
 ==========================
+公式リポジトリからクローン．学習用．
+
 
 [<img src="https://raw.githubusercontent.com/oreilly-japan/deep-learning-from-scratch-2/images/deep-learning-from-scratch-2.png" width="200px">](https://www.oreilly.co.jp/books/9784873118369/)
 
@@ -16,7 +18,7 @@
 |...        |...                          |
 |ch08       |8章で使用するソースコード    |
 |common     |共通で使用するソースコード   |
-|dataset    |データセット用のソースコード | 
+|dataset    |データセット用のソースコード |
 
 学習済みの重みファイル（6章、7章で使用）は下記URLから入手可能です。
 <https://www.oreilly.co.jp/pub/9784873118369/BetterRnnlm.pkl>
