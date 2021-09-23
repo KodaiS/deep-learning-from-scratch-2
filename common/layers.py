@@ -156,16 +156,17 @@ class Embedding:
         self.idx = None  # 抽出する行のインデックスを保持する変数
 
     def forward(self, idx):
-        # 抽出する行のインデックスを受け取り，重みから該当する行のみを返す
-        # 抽出する行のインデックスはインスタンス変数として格納
         W, = self.params
-        self.idx = idx
-        out = W[idx]
+        self.idx = idx  # ここでidxを設定
+        out = W[idx]  # 重みから指定したidxの行だけを取り出す
         return out
 
     def backward(self, dout):
+        # gradの全要素を0にする
         dW, = self.grads
         dW[...] = 0
+        # forwardで抽出したインデックスに対応したdoutで勾配を更新
+        # ミニバッチに同じインデックスが複数あった場合は足し合わせる
         if GPU:
             np.scatter_add(dW, self.idx, dout)
         else:

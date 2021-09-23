@@ -9,23 +9,25 @@ import collections
 class EmbeddingDot:
     def __init__(self, W):
         self.embed = Embedding(W)
-        self.params = self.embed.params
-        self.grads = self.embed.grads
+        self.params = self.embed.params  # embedレイヤの重みW
+        self.grads = self.embed.grads  # embed.backward()で更新される
         self.cache = None
 
     def forward(self, h, idx):
-        target_W = self.embed.forward(idx)
-        out = np.sum(target_W * h, axis=1)
+        # h: 中間層からの出力
+        # idx: 正解の単語の単語ID (要素数は batch_size)
+        target_W = self.embed.forward(idx)  # 正解の単語IDに対応した行の重みを抽出
+        out = np.sum(target_W * h, axis=1)  # 中間層出力と正解単語の重みの要素ごとの積を取ったのちに行ごとに和を計算．hと各行の内積を実現．
 
-        self.cache = (h, target_W)
+        self.cache = (h, target_W)  # backwardで使うため
         return out
 
     def backward(self, dout):
         h, target_W = self.cache
-        dout = dout.reshape(dout.shape[0], 1)
+        dout = dout.reshape(dout.shape[0], 1)  # 1次元で渡されたdoutを2次元に変換
 
         dtarget_W = dout * h
-        self.embed.backward(dtarget_W)
+        self.embed.backward(dtarget_W)  # embedレイヤの勾配を更新
         dh = dout * target_W
         return dh
 
