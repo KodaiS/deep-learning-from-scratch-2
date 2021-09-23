@@ -148,13 +148,16 @@ class Dropout:
         return dout * self.mask
 
 
+# 4.1 word2vecの改良
 class Embedding:
     def __init__(self, W):
         self.params = [W]
         self.grads = [np.zeros_like(W)]
-        self.idx = None
+        self.idx = None  # 抽出する行のインデックスを保持する変数
 
     def forward(self, idx):
+        # 抽出する行のインデックスを受け取り，重みから該当する行のみを返す
+        # 抽出する行のインデックスはインスタンス変数として格納
         W, = self.params
         self.idx = idx
         out = W[idx]
