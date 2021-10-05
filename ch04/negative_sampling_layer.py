@@ -33,26 +33,37 @@ class EmbeddingDot:
 
 
 class UnigramSampler:
+    """
+    コーパス中の単語の確率分布に従って，ランダムに単語をサンプリングする
+    corpus: コーパス．単語IDのリスト．
+    power: 確率分布を累乗．1より小．稀な単語の確率を少し上げる．
+    sample_size: いくつサンプリングするか？
+    """
     def __init__(self, corpus, power, sample_size):
         self.sample_size = sample_size
         self.vocab_size = None
         self.word_p = None
 
+        # コーパスの単語の出現回数をカウント
         counts = collections.Counter()
         for word_id in corpus:
             counts[word_id] += 1
 
+        # 単語の出現確率を計算
         vocab_size = len(counts)
         self.vocab_size = vocab_size
 
-        self.word_p = np.zeros(vocab_size)
+        self.word_p = np.zeros(vocab_size)  # 確率を保持する行列
         for i in range(vocab_size):
-            self.word_p[i] = counts[i]
+            self.word_p[i] = counts[i]  # 出現回数を入れる
 
-        self.word_p = np.power(self.word_p, power)
-        self.word_p /= np.sum(self.word_p)
+        self.word_p = np.power(self.word_p, power)  # 累乗
+        self.word_p /= np.sum(self.word_p)  # 確率に変換
 
     def get_negative_sample(self, target):
+        """
+        ターゲット以外の単語IDを単語の出現確率に従ってランダムに抽出する
+        """
         batch_size = target.shape[0]
 
         if not GPU:
