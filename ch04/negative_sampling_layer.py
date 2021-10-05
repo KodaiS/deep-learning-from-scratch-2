@@ -63,18 +63,20 @@ class UnigramSampler:
     def get_negative_sample(self, target):
         """
         ターゲット以外の単語IDを単語の出現確率に従ってランダムに抽出する
+        target: ターゲットの単語IDをnumpy array（ミニバッチ）で渡す．
         """
         batch_size = target.shape[0]
 
         if not GPU:
+            # ミニバッチ数 x サンプリングする数の行列
             negative_sample = np.zeros((batch_size, self.sample_size), dtype=np.int32)
 
             for i in range(batch_size):
-                p = self.word_p.copy()
-                target_idx = target[i]
-                p[target_idx] = 0
-                p /= p.sum()
-                negative_sample[i, :] = np.random.choice(self.vocab_size, size=self.sample_size, replace=False, p=p)
+                p = self.word_p.copy()  # 配列 p を初期化
+                target_idx = target[i]  # i 番目のターゲットの単語ID
+                p[target_idx] = 0  # ターゲットの確率を0にする
+                p /= p.sum()  # ターゲットを除いて確率を再計算
+                negative_sample[i, :] = np.random.choice(self.vocab_size, size=self.sample_size, replace=False, p=p)  # 重複なしでサンプリング
         else:
             # GPU(cupy）で計算するときは、速度を優先
             # 負例にターゲットが含まれるケースがある
