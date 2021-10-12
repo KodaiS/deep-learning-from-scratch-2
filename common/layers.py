@@ -6,59 +6,59 @@ from common.functions import softmax, cross_entropy_error
 
 class MatMul:
     def __init__(self, W):
-        self.params = [W]
-        self.grads = [np.zeros_like(W)]
-        self.x = None
+        self.params = [W]  # 重みをインスタンス変数で保持
+        self.grads = [np.zeros_like(W)]  # 勾配をインスタンス変数で保持．Wと同じ形状．
+        self.x = None  # xをインスタンス変数で保持する．順伝播でセットする．
 
     def forward(self, x):
-        W, = self.params
-        out = np.dot(x, W)
-        self.x = x
-        return out
+        W, = self.params  # 重みを参照
+        out = np.dot(x, W)  # 積和を計算
+        self.x = x  # 入力xは逆伝播に使うためインスタンス変数で保持
+        return out  # 下流にoutを伝播
 
     def backward(self, dout):
-        W, = self.params
-        dx = np.dot(dout, W.T)
-        dW = np.dot(self.x.T, dout)
-        self.grads[0][...] = dW
-        return dx
+        W, = self.params  # 重みを参照
+        dx = np.dot(dout, W.T)  # xでの偏微分を計算．
+        dW = np.dot(self.x.T, dout)  # Wでの偏微分を計算
+        self.grads[0][...] = dW  # メモリ位置を固定してdWをコピー．勾配が更新される．
+        return dx  # 下流にはdxを伝播
 
 
 class Affine:
     def __init__(self, W, b):
-        self.params = [W, b]
-        self.grads = [np.zeros_like(W), np.zeros_like(b)]
-        self.x = None
+        self.params = [W, b]  # 重みとバイアスをリストでインスタンス変数に保持
+        self.grads = [np.zeros_like(W), np.zeros_like(b)]  # 重みとバイアスの勾配
+        self.x = None  # 順伝播で入力を保持する
 
     def forward(self, x):
-        W, b = self.params
-        out = np.dot(x, W) + b
-        self.x = x
+        W, b = self.params  # パラメータを参照
+        out = np.dot(x, W) + b  # Affine変換
+        self.x = x  # 入力を保持
         return out
 
     def backward(self, dout):
-        W, b = self.params
-        dx = np.dot(dout, W.T)
-        dW = np.dot(self.x.T, dout)
-        db = np.sum(dout, axis=0)
+        W, b = self.params  # パラメータを参照
+        dx = np.dot(dout, W.T)  # xでの偏微分を計算
+        dW = np.dot(self.x.T, dout)  # Wでの偏微分を計算
+        db = np.sum(dout, axis=0)  # bでの偏微分を計算
 
-        self.grads[0][...] = dW
-        self.grads[1][...] = db
+        self.grads[0][...] = dW  # Wの勾配
+        self.grads[1][...] = db  # bの勾配
         return dx
 
 
 class Softmax:
     def __init__(self):
-        self.params, self.grads = [], []
-        self.out = None
+        self.params, self.grads = [], []  # パラメータと勾配
+        self.out = None  # 出力
 
     def forward(self, x):
-        self.out = softmax(x)
-        return self.out
+        self.out = softmax(x)  # ソフトマックス関数を計算
+        return self.out  # ソフトマックス関数の結果を返す
 
     def backward(self, dout):
-        dx = self.out * dout
-        sumdx = np.sum(dx, axis=1, keepdims=True)
+        dx = self.out * dout  # xでの偏微分
+        sumdx = np.sum(dx, axis=1, keepdims=True)  
         dx -= self.out * sumdx
         return dx
 
