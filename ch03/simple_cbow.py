@@ -39,10 +39,10 @@ class SimpleCBOW:
 
     def backward(self, dout=1):
         # 各レイヤのbackwardメソッドを順に呼び出す
-        # レイヤのbackwardメソッドが実行されるたび，インスタンス変数の勾配が更新される
+        # レイヤのbackwardメソッドが実行されるたびインスタンス変数の勾配が更新される
         ds = self.loss_layer.backward(dout)
         da = self.out_layer.backward(ds)
-        da *= 0.5
+        da *= 0.5  # 入力層一つ分の勾配にする
         self.in_layer1.backward(da)
         self.in_layer0.backward(da)
         return None
