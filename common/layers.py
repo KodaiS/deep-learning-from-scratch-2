@@ -83,10 +83,10 @@ class SoftmaxWithLoss:
     def backward(self, dout=1):
         batch_size = self.t.shape[0]
 
-        dx = self.y.copy()
-        dx[np.arange(batch_size), self.t] -= 1
+        dx = self.y.copy() # softmaxの出力
+        dx[np.arange(batch_size), self.t] -= 1 # y_k - t_k の計算．one-hot-vectorなので，正解ラベルのインデックスに対応するところだけ1を引く
         dx *= dout
-        dx = dx / batch_size
+        dx = dx / batch_size  # 1データ分の勾配に直す
 
         return dx
 
@@ -102,10 +102,13 @@ class Sigmoid:
         return out
 
     def backward(self, dout):
-        dx = dout * (1.0 - self.out) * self.out
+        dx = dout * (1.0 - self.out) * self.out  # (1 - y)*y
         return dx
 
 
+# CBOWの高速化で多値分類を二値分類として解く際に使用．
+# あるコンテキストから導かれる単語は w_k か？という問いを考える．
+# 上記の問題に対して，正解の場合はt = 1, 不正解の場合はt = 0が与えられる．
 class SigmoidWithLoss:
     def __init__(self):
         self.params, self.grads = [], []
@@ -115,8 +118,9 @@ class SigmoidWithLoss:
 
     def forward(self, x, t):
         self.t = t
-        self.y = 1 / (1 + np.exp(-x))
+        self.y = 1 / (1 + np.exp(-x))  # sigmoid関数
 
+        # - {t * logy + (1 - t) * log(1 - y)}
         self.loss = cross_entropy_error(np.c_[1 - self.y, self.y], self.t)
 
         return self.loss
